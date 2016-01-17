@@ -8,7 +8,7 @@ using Windows.Devices.I2c;
 
 namespace Windows.IoT.Core.HWInterfaces.MPR121
 {
-    public class MPR121
+    public class MPR121:IDisposable
     {
         private const byte MPR121_I2CADDR_DEFAULT = 0x5A;
         private const int IRQ_HOOKUPPIN_DEFAULT = 5;
@@ -54,7 +54,7 @@ namespace Windows.IoT.Core.HWInterfaces.MPR121
 
             //Establish I2C connection
             __connection = await I2cDevice.FromIdAsync(i2cMasterId, new I2cConnectionSettings(this.__i2cAddress));
-
+            
             // soft reset
             I2cTransferResult result = __connection.WritePartial(new byte[] { Registers.MPR121_SOFTRESET, 0x63 });
 
@@ -216,6 +216,11 @@ namespace Windows.IoT.Core.HWInterfaces.MPR121
         protected virtual void OnPinReleased(PinReleasedEventArgs releasedEventArgs)
         {
             if (PinReleased != null) { PinReleased(this, releasedEventArgs); }
+        }
+
+        public void Dispose()
+        {
+            __connection.Dispose();
         }
         #endregion "Events"
 
